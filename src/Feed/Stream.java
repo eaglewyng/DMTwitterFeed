@@ -106,7 +106,7 @@ public class Stream {
             @Override
             public void onStatus(Status status) {
             	try {
-            		output.write(DataObjectFactory.getRawJSON(status));
+            		output.write(DataObjectFactory.getRawJSON(status) + "\n");
 					counter++;
 	            	if ( counter >= 5000){
 	            		output.flush();
