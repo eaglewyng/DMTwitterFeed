@@ -138,7 +138,7 @@ public class Stream {
         //process the file into an array
         String keywords[] = getFilters(filterFilePath);
         if(keywords == null){
-        	System.out.println("There were no filters fount!");
+        	System.out.println("There were no filters found!");
         	return;
         }
         fq.track(keywords);
@@ -193,10 +193,10 @@ public class Stream {
 		
 		ConfigurationBuilder cb = new ConfigurationBuilder();
         cb.setDebugEnabled(true);
-        cb.setOAuthConsumerKey("consumerKey");
-        cb.setOAuthConsumerSecret("consumerSecret");
-        cb.setOAuthAccessToken("accessToken");
-        cb.setOAuthAccessTokenSecret("accessTokenSecret");
+        cb.setOAuthConsumerKey(consumerKey);
+        cb.setOAuthConsumerSecret(consumerSecret);
+        cb.setOAuthAccessToken(accessToken);
+        cb.setOAuthAccessTokenSecret(accessTokenSecret);
         cb.setJSONStoreEnabled(true);
 		return cb;
 	}
@@ -213,8 +213,8 @@ public class Stream {
 		
 		
 		List<String> authList = new ArrayList<String>();
-		while(oAuthScanner.hasNextLine()){
-			String tempAuthString = oAuthScanner.nextLine();
+		while(oAuthScanner.hasNext()){
+			String tempAuthString = oAuthScanner.next();
 			if(tempAuthString.length() == 0 || tempAuthString.startsWith("#")){
 				continue;
 			}
