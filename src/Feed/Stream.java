@@ -25,7 +25,7 @@ public class Stream {
 	static int fileCount = 0;
 	static int counter = 0;
 	static FileWriter output;
-	private static List<DMDataFilter> filters;
+	private static List<DMDataFilter> filters = new ArrayList<DMDataFilter>();
 	
 	 /**
 	  * 
@@ -107,18 +107,21 @@ public class Stream {
 
             @Override
             public void onStatus(Status status) {
-            	try {
-            		output.write(DataObjectFactory.getRawJSON(status) + "\n");
-					counter++;
-	            	if ( counter >= 5000){
-	            		output.flush();
-	            		output.close();
-	            		output = new FileWriter("data/file-"+ fileCount++ + ".txt" );
-	            		counter = 0;
-	            	}
-				} catch (IOException e) {	
-					e.printStackTrace();
-				}
+            	if(passesFilters(status.getText())){
+	            	try {
+	            		
+	            		output.write(DataObjectFactory.getRawJSON(status) + "\n");
+						counter++;
+		            	if ( counter >= 5000){
+		            		output.flush();
+		            		output.close();
+		            		output = new FileWriter("data/file-"+ fileCount++ + ".txt" );
+		            		counter = 0;
+		            	}
+					} catch (IOException e) {	
+						e.printStackTrace();
+					}
+            	}
             }
 
             @Override
@@ -186,33 +189,69 @@ public class Stream {
 					
 					if(narrScan.hasNext()){
 						nextWord = narrScan.next();
-					}
+						
 					
 					while(narrScan.hasNext() && !nextWord.equals("-")){
-						inclTerms.add(nextWord);
-						filterList.add(nextWord);
-						nextWord = narrScan.next();
-					}
-					//process
-					if(nextWord.equals("-")){	
-						while(narrScan.hasNext()){
+						if(nextWord.charAt(0) == '\"'){
+							String adStr = "";
+							if(nextWord.length() > 1){
+								adStr += nextWord.substring(1);
+								nextWord = narrScan.next();
+							}
+							while(nextWord.charAt(nextWord.length() - 1) != '"'){
+								adStr += nextWord;
+								nextWord = narrScan.next();
+							}
+							adStr = nextWord.substring(0, nextWord.length() - 1);
+							inclTerms.add(nextWord);
+							filterList.add(adStr);
 							nextWord = narrScan.next();
-							exclTerms.add(nextWord);
+						}
+						else{
+							inclTerms.add(nextWord);
+							if(isQualifiedTwitterWord(nextWord, filterList) )
+									filterList.add(nextWord);
+							nextWord = narrScan.next();
 						}
 					}
 					
-					//add the filter to the list
-					if(inclTerms.size() != 0){
-						DMDataFilter tempfil = new DMDataFilter(inclTerms, exclTerms);
-						filters.add(tempfil);
+						
+				}
+					//process
+					if(nextWord.equals("-")){
+						while(narrScan.hasNext()){
+							nextWord = narrScan.next();
+							if(nextWord.charAt(0) == '\"'){
+								String adStr = "";
+								if(nextWord.length() > 1){
+									adStr += nextWord.substring(1);
+									nextWord = narrScan.next();
+								}
+								while(nextWord.charAt(nextWord.length() - 1) != '"'){
+									adStr += " " + nextWord;
+								}
+								adStr +=" " + nextWord.substring(0, nextWord.length() - 1);
+								exclTerms.add(adStr);
+							}
+							else{
+								exclTerms.add(nextWord);
+								
+							}
+						}
+						//add the filter to the list
+						if(inclTerms.size() != 0){
+							DMDataFilter tempfil = new DMDataFilter(inclTerms, exclTerms);
+							filters.add(tempfil);
+						}
+					
+						else{
+							System.out.println("Line " + lineCount + " of filter file ignored due to improper syntax");
+						}
+						
 					}
+					narrScan.close();
 				}
-				else{
-					System.out.println("Line " + lineCount + " of filter file ignored due to improper syntax");
-				}
-				narrScan.close();
 			}
-			
 		}
 		
 		filterScanner.close();
@@ -223,6 +262,28 @@ public class Stream {
 		
 		
 	}
+	
+	private static boolean isQualifiedTwitterWord(String word, List<String> ft){
+		if(twContains(word,ft)){
+			return false;
+		}
+		if(word.equalsIgnoreCase("I") || word.equalsIgnoreCase("I'm") || word.equalsIgnoreCase("was")
+				|| word.equalsIgnoreCase("I've") || word.equalsIgnoreCase("me") || word.equalsIgnoreCase("feel") ||
+				word.equalsIgnoreCase("before"))
+			return false;
+		return true;
+	}
+	
+	private static boolean twContains(String word, List<String> ft){
+		for(String a : ft){
+			if(a.equalsIgnoreCase(word))
+				return true;
+		}
+		return false;
+	}
+	
+
+	
 	
 	/**
 	 * Creates the configuration builder
