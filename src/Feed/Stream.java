@@ -25,6 +25,8 @@ public class Stream {
 	static int fileCount = 0;
 	static int counter = 0;
 	static FileWriter output;
+	private static List<DMDataFilter> filters;
+	
 	 /**
 	  * 
 	  * @param args Accepts the arguments specified in the argParser
@@ -163,12 +165,54 @@ public class Stream {
 		}
 		List<String> filterList = new ArrayList<String>();
 		
+		int lineCount = 0;
+		
 		while(filterScanner.hasNextLine()){
+			
 			String tempFiltString = filterScanner.nextLine();
-			if(tempFiltString.length() == 0){
-				continue;
+			lineCount++;
+			
+			//make scanner for parsing the line
+			Scanner narrScan = new Scanner(tempFiltString);
+			
+			if(narrScan.hasNext()){
+				
+				String nextWord = narrScan.next();
+				//make sure the beginning of the word is correct
+				if(nextWord.equals("+")){
+					
+					List<String> inclTerms = new ArrayList<String>();
+					List<String> exclTerms = new ArrayList<String>();
+					
+					if(narrScan.hasNext()){
+						nextWord = narrScan.next();
+					}
+					
+					while(narrScan.hasNext() && !nextWord.equals("-")){
+						inclTerms.add(nextWord);
+						filterList.add(nextWord);
+						nextWord = narrScan.next();
+					}
+					//process
+					if(nextWord.equals("-")){	
+						while(narrScan.hasNext()){
+							nextWord = narrScan.next();
+							exclTerms.add(nextWord);
+						}
+					}
+					
+					//add the filter to the list
+					if(inclTerms.size() != 0){
+						DMDataFilter tempfil = new DMDataFilter(inclTerms, exclTerms);
+						filters.add(tempfil);
+					}
+				}
+				else{
+					System.out.println("Line " + lineCount + " of filter file ignored due to improper syntax");
+				}
+				narrScan.close();
 			}
-			filterList.add(tempFiltString);
+			
 		}
 		
 		filterScanner.close();
@@ -229,6 +273,15 @@ public class Stream {
 		return retArr;
 	}
 	
+	
+	private static boolean passesFilters(String tweet){
+		
+		for(DMDataFilter filter : filters){
+			if(filter.isMatch(tweet))
+				return true;	
+		}
+		return false;
+	}
 	/**
 	 * A class for parsing the arguments
 	 * @author pbridd
@@ -282,6 +335,7 @@ public class Stream {
 		
 	}
 
+	
 	
 }
 
