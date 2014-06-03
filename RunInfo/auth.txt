@@ -1,5 +1,5 @@
-#OAuth Consumer Key
-#OAuth Consumer Secret
-#OAuth Access Token
-#OAuth Access Token Secret
+#OAuthConsumerKey
+#OAuthConsumerSecret
+#OAuthAccessToken
+#OAuthAccessTokenSecret
 
