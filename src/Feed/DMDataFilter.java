@@ -2,6 +2,7 @@ package Feed;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class DMDataFilter {
 	private List<String> inclTerms;
@@ -35,15 +36,38 @@ public class DMDataFilter {
 	
 	public boolean isMatch(String str){
 		for(int i = 0; i < inclTerms.size(); i++){
-			if(!str.toLowerCase().contains(inclTerms.get(i).toLowerCase())){
+			if(!specContains(str, inclTerms.get(i))){
 				return false;
 			}
 		}
 		for(int i = 0; i < exclTerms.size(); i++){
-			if(str.toLowerCase().contains(exclTerms.get(i).toLowerCase())){
+			if(specContains(str, inclTerms.get(i))){
 				return false;
 			}
 		}
 		return true;
+	}
+	
+	public static boolean specContains(String inputStr, String critStr){
+		Scanner inputScanner = new Scanner(inputStr);
+		Scanner critScanner = new Scanner(critStr);
+		boolean matchFound = false;
+		while(inputScanner.hasNext()){
+			if(!critScanner.hasNext()){
+				matchFound = true;
+				break;
+			}
+			String nextIW = inputScanner.next();
+			String nextCW = critScanner.next();
+			
+			//reset the criteria scanner  if the string doesn't meet the criteria
+			if(!nextIW.equalsIgnoreCase(nextCW)){
+				critScanner = new Scanner(critStr);
+			}
+		}
+		inputScanner.close();
+		critScanner.close();
+		return matchFound;
+		
 	}
 }
