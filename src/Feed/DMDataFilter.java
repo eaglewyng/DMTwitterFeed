@@ -62,6 +62,7 @@ public class DMDataFilter {
 			
 			//reset the criteria scanner  if the string doesn't meet the criteria
 			if(!nextIW.equalsIgnoreCase(nextCW)){
+				critScanner.close();
 				critScanner = new Scanner(critStr);
 			}
 		}
