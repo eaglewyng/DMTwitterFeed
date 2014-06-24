@@ -41,7 +41,7 @@ public class DMDataFilter {
 			}
 		}
 		for(int i = 0; i < exclTerms.size(); i++){
-			if(specContains(str, inclTerms.get(i))){
+			if(specContains(str, exclTerms.get(i))){
 				return false;
 			}
 		}
