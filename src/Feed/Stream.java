@@ -199,10 +199,10 @@ public class Stream {
 								nextWord = narrScan.next();
 							}
 							while(nextWord.charAt(nextWord.length() - 1) != '"'){
-								adStr += nextWord;
+								adStr += " " + nextWord;
 								nextWord = narrScan.next();
 							}
-							adStr = nextWord.substring(0, nextWord.length() - 1);
+							adStr += " " + nextWord.substring(0, nextWord.length() - 1);
 							inclTerms.add(nextWord);
 							filterList.add(adStr);
 							nextWord = narrScan.next();
