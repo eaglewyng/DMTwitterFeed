@@ -196,15 +196,24 @@ public class Stream {
 							String adStr = "";
 							if(nextWord.length() > 1){
 								adStr += nextWord.substring(1);
+								if(isQualifiedTwitterWord(nextWord.substring(1), filterList)){
+									filterList.add(nextWord.substring(1));
+								}
 								nextWord = narrScan.next();
+								
 							}
 							while(nextWord.charAt(nextWord.length() - 1) != '"'){
 								adStr += " " + nextWord;
+								if(isQualifiedTwitterWord(nextWord, filterList)){
+									filterList.add(nextWord);
+								}
 								nextWord = narrScan.next();
 							}
 							adStr += " " + nextWord.substring(0, nextWord.length() - 1);
-							inclTerms.add(nextWord);
-							filterList.add(adStr);
+							if(isQualifiedTwitterWord(nextWord.substring(0, nextWord.length() - 1), filterList)){
+								filterList.add(nextWord.substring(0, nextWord.length() - 1));
+							}
+							inclTerms.add(adStr);
 							nextWord = narrScan.next();
 						}
 						else{
